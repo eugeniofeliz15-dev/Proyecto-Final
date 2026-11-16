@@ -1,74 +1,151 @@
-# 🛒 POS & E-commerce API
+# 🛒 POS & E-commerce System
 
-API RESTful robusta y escalable para un sistema híbrido de Punto de Venta (POS) y Tienda en Línea (E-commerce). Construida con NestJS, Prisma y PostgreSQL.
+Sistema híbrido de Punto de Venta (POS) y tienda en línea, con una API REST en NestJS y un frontend en React. Comparte catálogo e inventario entre las ventas de mostrador y las compras web, con acceso basado en roles.
 
-## 🚀 Características Principales
+## 🌐 Enlaces en producción
 
-- **Autenticación y Autorización:** JWT con roles (Administrador, Cajero, Cliente).
-- **Seguridad Blindada:** Rate Limiting, Helmet, CORS y validación estricta de entorno (Joi).
-- **Integridad de Datos:** Soft Delete para proteger el historial financiero y de inventario.
-- **Rendimiento:** Paginación implementada en módulos de alto tráfico.
-- **Pasarela de Pagos:** Checkout MockPay con confirmación asíncrona de órdenes mediante webhook autenticado.
-- **Documentación:** Swagger UI interactivo y completo.
+- **Tienda y aplicación web:** [https://proyecto-final-gamma-kohl.vercel.app](https://proyecto-final-gamma-kohl.vercel.app)
+- **Documentación interactiva de la API (Swagger):** [https://proyecto-final-354o.onrender.com/api/docs](https://proyecto-final-354o.onrender.com/api/docs)
 
-## 🛠️ Stack Tecnológico
+## ✨ Funcionalidades
 
-- **Framework:** [NestJS](https://nestjs.com/)
-- **Base de Datos:** PostgreSQL (vía [Supabase](https://supabase.com/))
-- **ORM:** [Prisma](https://www.prisma.io/)
-- **Hosting:** [Render](https://render.com/)
+- **Cliente:** registro, catálogo, carrito, direcciones, checkout y consulta de pedidos. Si MockPay no está disponible al crear el enlace de pago, el pedido queda pendiente y se puede reintentar desde “Mis pedidos”; no se marca como pagado sin confirmación.
+- **Cajero:** POS para registrar ventas, elegir el método de pago y consultar el historial diario de ventas.
+- **Administrador:** gestión de productos y categorías, administración del personal, seguimiento y cambio de estado de pedidos, y apertura/cierre de caja con conciliación. La cola de pedidos muestra el cliente, la dirección y los productos comprados con cantidades y subtotales.
+- **Inventario compartido:** las ventas del POS y los pedidos web utilizan el inventario del mismo sistema.
+- **Seguridad:** autenticación JWT, autorización por roles, validación de DTOs, validación de configuración, CORS y límite global de solicitudes.
+- **Pedidos y catálogo:** listas paginadas y filtrables, y eliminación lógica de productos para conservar referencias históricas.
+- **Imágenes de productos:** carga opcional de archivos JPEG, PNG o WebP de hasta 5 MB.
+- **Pagos:** integración con MockPay y endpoint de webhook autenticado para confirmar pagos de forma asíncrona.
+- **API documentada:** Swagger/OpenAPI disponible en `/api/docs`.
 
-## 🌍 API en Producción
+## 🛠️ Stack tecnológico
 
-La API está desplegada y disponible 24/7 en:
-👉 *_[https://pos-ecommerce-api-24lq.onrender.com/api/docs]_
+### Backend
 
-## ⚙️ Instalación Local
+- NestJS y TypeScript
+- Prisma y PostgreSQL (Supabase)
+- JWT, Passport, bcryptjs, Helmet y `@nestjs/throttler`
+- Joi para validar variables de entorno; `class-validator` y `class-transformer` para validar DTOs
+- Swagger/OpenAPI
 
-1. Clona el repositorio: `git clone https://github.com/eugeniofeliz15-dev/pos-ecommerce-api.git`
-2. Instala dependencias: `pnpm install`
-3. Configura la API en `.env` (no subas este archivo): `DATABASE_URL`, un `JWT_SECRET` aleatorio, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` y `CORS_ORIGIN` (por ejemplo, `http://localhost:5173,http://localhost:4173`). `PORT` es opcional (por defecto `10000`). Si no configuras `CORS_ORIGIN`, el navegador no podrá llamar a la API desde otro origen. Usa correos y contraseñas propios; no hay credenciales de demostración predeterminadas.
-4. Ejecuta migraciones: `pnpm prisma migrate dev`
-5. Ejecuta `pnpm prisma db seed` para crear el administrador y los datos de catálogo. Define también `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD` si necesitas un cliente de demostración; ambos son opcionales y deben configurarse juntos.
-6. Inicia el servidor: `pnpm start:dev`
+### Frontend
 
-En Render, usa la raíz del repositorio, `pnpm install --frozen-lockfile && pnpm build` como comando de compilación y `pnpm start:prod` como comando de inicio. El build regenera Prisma Client para la plataforma de destino; configura `DATABASE_URL`, `JWT_SECRET` y `CORS_ORIGIN` en las variables de entorno del servicio.
+- React 19, Vite y TypeScript
+- Tailwind CSS
+- Zustand
+- React Hook Form y Zod
+- Axios y React Router DOM v6
 
-Para cargar únicamente el cliente, la categoría y el producto tecnológico de demostración sin tocar la cuenta de administrador ni crear el catálogo base, configura `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD` en `.env`, luego ejecuta en PowerShell:
+### Despliegue
 
-```powershell
-$env:SEED_DEMO_DATA_ONLY = 'true'
-pnpm prisma db seed
+- Frontend: Vercel
+- API: Render
+- Base de datos: Supabase (usa una URL de conexión compatible con el entorno de despliegue)
+
+## 🚀 Instalación y ejecución local
+
+### Requisitos
+
+- Node.js y pnpm
+- Una base de datos PostgreSQL local o en la nube
+
+### 1. Clonar e instalar dependencias
+
+```bash
+git clone https://github.com/eugeniofeliz15-dev/pos-ecommerce-api.git
+cd pos-ecommerce-api
+pnpm install
 ```
 
-Este modo conserva los registros existentes y no cambia la contraseña ni el rol de un cliente que ya exista.
+La raíz del repositorio es un workspace de pnpm que incluye `frontend/`; no es necesario instalar sus dependencias por separado.
 
-Para crear un administrador local nuevo sin restablecer la contraseña de ninguna cuenta existente, configura `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` en `.env`; después ejecuta en PowerShell:
+### 2. Configurar y ejecutar el backend
+
+Crea un archivo `.env` en la raíz del repositorio. No hay un `.env.example` para el backend; configura al menos estas variables:
+
+```dotenv
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+JWT_SECRET="reemplaza-por-un-secreto-largo-y-aleatorio"
+PORT=10000
+CORS_ORIGIN="http://localhost:5173,http://localhost:4173"
+```
+
+`DATABASE_URL` y `JWT_SECRET` son obligatorias. `PORT` es opcional (por defecto `10000`). `CORS_ORIGIN` acepta una lista de orígenes separados por comas; si se omite, el navegador no podrá llamar a la API desde el frontend local.
+
+Aplica las migraciones existentes e inicia la API:
+
+```bash
+pnpm exec prisma migrate deploy
+pnpm start:dev
+```
+
+La API local estará en `http://localhost:10000` y Swagger en `http://localhost:10000/api/docs`.
+
+### 3. Crear datos iniciales (opcional)
+
+Para ejecutar el seed completo, define `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` en `.env` (contraseña de al menos 6 caracteres) y ejecuta:
+
+```bash
+pnpm exec prisma db seed
+```
+
+El seed completo crea o actualiza el administrador indicado y carga datos de catálogo. Si también quieres un cliente de demostración, define `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD`; deben configurarse juntos. Como el seed completo actualiza la contraseña y el rol si encuentra el correo del administrador, usa el modo de creación exclusiva si no quieres modificar una cuenta existente. En PowerShell:
 
 ```powershell
 $env:SEED_CREATE_ADMIN_ONLY = 'true'
-pnpm prisma db seed
+pnpm exec prisma db seed
 ```
 
-El modo de administrador solo crea la cuenta si el correo aún no existe; ante una colisión, aborta sin modificar usuarios.
+Ese modo crea el administrador solo si el correo no existe; ante una colisión, aborta sin modificar cuentas.
 
-## 🖥️ Frontend
+Para cargar solo el cliente y los datos de demostración, configura `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD` y ejecuta en PowerShell:
 
-El frontend React/Vite vive en `frontend/` y consume esta API; no se conecta directamente a PostgreSQL ni contiene credenciales de Prisma.
+```powershell
+$env:SEED_DEMO_DATA_ONLY = 'true'
+pnpm exec prisma db seed
+```
 
-1. Copia `frontend/.env.example` a `frontend/.env.local` y ajusta `VITE_API_URL` si tu API usa otro puerto.
-2. Ejecuta `pnpm --filter pos-ecommerce-frontend dev`.
-3. La API local usa el puerto definido por `PORT` en `.env` (por defecto `10000`). Asegúrate de que `VITE_API_URL` coincida con ese puerto. Swagger está disponible en `/api/docs`.
+Este modo no cambia la cuenta de administrador ni crea el catálogo base.
 
-Para Vercel, configura `frontend/` como directorio raíz del proyecto y define `VITE_API_URL` en el panel de variables del entorno, apuntando a la URL pública de la API con el sufijo `/api`. En la API, agrega el dominio de Vercel a `CORS_ORIGIN`. No se guarda una URL de producción en el código fuente.
+### 4. Configurar y ejecutar el frontend
 
-Incluye catálogo, autenticación por roles, POS e historial de ventas, carrito y checkout MockPay, administración de usuarios del personal (solo Administrador), cola paginada de pedidos con transiciones optimistas y apertura/cierre de caja (solo Administrador).
+Copia el ejemplo de entorno del frontend y verifica que la URL de la API coincida con el puerto local:
 
-Los productos aceptan una imagen opcional por `multipart/form-data` en `POST /api/products` y `PATCH /api/products/:id` (campo `image`, JPEG/PNG/WebP, máximo 5 MB). El backend valida el contenido, guarda el archivo en `uploads/products/` y persiste su ruta en `products.imageUrl`; la API sirve esas imágenes desde `/uploads/products/`. La vitrina pública incluye la imagen, pero sigue excluyendo el costo de adquisición. En producción, configura almacenamiento persistente para esa carpeta o conecta un proveedor de objetos antes del despliegue.
+```powershell
+Copy-Item frontend\.env.example frontend\.env.local
+```
 
-Rutas de apoyo: `GET/POST /api/addresses` y `PATCH /api/addresses/:id` (direcciones del cliente autenticado); `GET /api/cart`, `POST /api/cart/add` y `DELETE /api/cart/remove/:productId`; `GET/POST /api/users` (solo Administrador, lista y creación de personal); `GET /api/orders?page=1&limit=10&status=PENDIENTE` para paginar y filtrar pedidos. Si MockPay no responde al crear un enlace, el pedido queda pendiente y el cliente puede reintentarlo desde `Mis pedidos` con `POST /api/orders/:id/payment-link`.
+El archivo debe contener:
 
-La API necesita `MOCKPAY_API_URL` y `MOCKPAY_API_KEY` (o `MOCKPAY_SECRET_KEY`) para crear pagos. Para habilitar callbacks, configura también `MOCKPAY_WEBHOOK_URL` con la URL `/api/orders/webhooks/mockpay` y un `MOCKPAY_WEBHOOK_SECRET` de al menos 32 caracteres; el proveedor debe enviar ese secreto en el header `x-mockpay-secret`. El endpoint rechaza llamadas sin el secreto. Sin callback configurado, el personal puede actualizar el estado del pedido desde la cola.
+```dotenv
+VITE_API_URL=http://localhost:10000/api
+```
+
+Inicia Vite desde la raíz del workspace:
+
+```bash
+pnpm --filter pos-ecommerce-frontend dev
+```
+
+## ⚙️ Configuración de producción
+
+- En **Vercel**, selecciona `frontend/` como directorio raíz y define `VITE_API_URL` con la URL pública de la API terminada en `/api`.
+- En **Render**, configura `DATABASE_URL`, `JWT_SECRET` y `CORS_ORIGIN`. Usa la raíz del repositorio, `pnpm install --frozen-lockfile && pnpm build` para compilar y `pnpm start:prod` para iniciar.
+- Añade el origen del frontend desplegado a `CORS_ORIGIN` en la API. Por ejemplo: `https://proyecto-final-gamma-kohl.vercel.app`.
+- El backend crea las imágenes en `uploads/products/`. El sistema de archivos de un despliegue puede ser efímero; configura almacenamiento persistente para esa carpeta o integra un proveedor de almacenamiento de objetos antes de depender de imágenes cargadas en producción.
+
+
+
+## 📌 Rutas útiles
+
+- `GET /api/addresses` y `POST /api/addresses`: consultar y crear direcciones del cliente autenticado.
+- `PATCH /api/addresses/:id`: actualizar una dirección propia.
+- `GET /api/cart`, `POST /api/cart/add` y `DELETE /api/cart/remove/:productId`: operaciones del carrito.
+- `GET /api/users` y `POST /api/users`: listar y crear usuarios del personal (solo Administrador).
+- `GET /api/orders?page=1&limit=10&status=PENDIENTE`: cola de pedidos para Administrador/Cajero, con cliente, dirección, productos, cantidades y subtotales; permite paginar y filtrar.
+- `POST /api/orders/:id/payment-link`: reintentar la creación de un enlace de pago.
+- `POST /api/products` y `PATCH /api/products/:id`: crear o actualizar productos con `multipart/form-data`; la imagen opcional se envía en el campo `image`.
 
 ---
 
