@@ -60,6 +60,12 @@ pnpm install
 
 La raíz del repositorio es un workspace de pnpm que incluye `frontend/`; no es necesario instalar sus dependencias por separado.
 
+### USUARIOS 
+ADMIN: admin@gmail.com 
+CONTRASEÑAñ qwerty123
+
+los otros los puedes crear con el admin y editarlos en la configuracion de USUARIOS
+
 ### 2. Configurar y ejecutar el backend
 
 Crea un archivo `.env` en la raíz del repositorio. No hay un `.env.example` para el backend; configura al menos estas variables:
