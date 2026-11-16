@@ -32,6 +32,8 @@ La API está desplegada y disponible 24/7 en:
 5. Ejecuta `pnpm prisma db seed` para crear el administrador y los datos de catálogo. Define también `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD` si necesitas un cliente de demostración; ambos son opcionales y deben configurarse juntos.
 6. Inicia el servidor: `pnpm start:dev`
 
+En Render, usa la raíz del repositorio, `pnpm install --frozen-lockfile && pnpm build` como comando de compilación y `pnpm start:prod` como comando de inicio. El build regenera Prisma Client para la plataforma de destino; configura `DATABASE_URL`, `JWT_SECRET` y `CORS_ORIGIN` en las variables de entorno del servicio.
+
 Para cargar únicamente el cliente, la categoría y el producto tecnológico de demostración sin tocar la cuenta de administrador ni crear el catálogo base, configura `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD` en `.env`, luego ejecuta en PowerShell:
 
 ```powershell

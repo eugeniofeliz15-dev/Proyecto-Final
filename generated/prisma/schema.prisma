@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -90,6 +91,7 @@ model Product {
   salePrice   Float
   stock       Int       @default(0)
   categoryId  Int
+  imageUrl    String?
   deletedAt   DateTime? // <-- NUEVO CAMPO
 
   category   Category    @relation(fields: [categoryId], references: [id])
