@@ -1,13 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import express from 'express';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const productImagesPath = join(process.cwd(), 'uploads', 'products');
+  mkdirSync(productImagesPath, { recursive: true });
+  app.use(
+    '/uploads/products',
+    express.static(productImagesPath, {
+      immutable: true,
+      maxAge: '1y',
+      index: false,
+    }),
+  );
 
-  // 1. Habilitar CORS
-  app.enableCors();
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.enableCors({ origin: allowedOrigins?.length ? allowedOrigins : false });
 
   // 2. Validación global de DTOs
   app.useGlobalPipes(
@@ -46,4 +61,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Application is running on: http://0.0.0.0:${port}`);
 }
-bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error('Failed to start the API:', error);
+  process.exitCode = 1;
+});

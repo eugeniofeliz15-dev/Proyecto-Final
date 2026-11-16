@@ -1,35 +1,43 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
- import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    // Verificar si el email ya existe (solo entre usuarios activos)
+    // Emails stay reserved after deactivation to preserve account history.
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email, deletedAt: null },
+      where: { email: createUserDto.email },
     });
     if (existingUser) {
       throw new ConflictException('El email ya está registrado');
     }
 
-    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     return this.prisma.user.create({
       data: {
-        ...createUserDto,
+        email: createUserDto.email,
         password: hashedPassword,
+        role: createUserDto.role ?? 'CAJERO',
+        firstName: createUserDto.firstName,
+        lastName: createUserDto.lastName,
+        phone: createUserDto.phone,
       },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
+        phone: true,
         role: true,
         createdAt: true,
       },
@@ -38,21 +46,30 @@ export class UsersService {
 
   async findAll() {
     return this.prisma.user.findMany({
-      where: { deletedAt: null }, // <-- Solo usuarios activos
+      where: {
+        deletedAt: null,
+        role: { in: ['ADMINISTRADOR', 'CAJERO'] },
+      },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
+        phone: true,
         role: true,
         createdAt: true,
       },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
   }
 
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
-      where: { id, deletedAt: null },
+      where: {
+        id,
+        deletedAt: null,
+        role: { in: ['ADMINISTRADOR', 'CAJERO'] },
+      },
       select: {
         id: true,
         email: true,
@@ -64,37 +81,48 @@ export class UsersService {
       },
     });
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Personal activo con ID ${id} no encontrado`);
     }
     return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
+    const user = await this.findOne(id);
 
-    // Si se está actualizando el email, verificar que no exista
     if (updateUserDto.email) {
       const existingUser = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email, deletedAt: null },
+        where: { email: updateUserDto.email },
       });
       if (existingUser && existingUser.id !== id) {
         throw new ConflictException('El email ya está en uso');
       }
     }
 
-    // Si se está actualizando la contraseña, hashearla
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    if (
+      user.role === 'ADMINISTRADOR' &&
+      updateUserDto.role === 'CAJERO' &&
+      (await this.prisma.user.count({
+        where: { role: 'ADMINISTRADOR', deletedAt: null },
+      })) === 1
+    ) {
+      throw new ConflictException(
+        'No se puede dejar la tienda sin un administrador activo.',
+      );
     }
 
+    const { password, ...userData } = updateUserDto;
     return this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: {
+        ...userData,
+        ...(password ? { password: await bcrypt.hash(password, 10) } : {}),
+      },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
+        phone: true,
         role: true,
         createdAt: true,
       },
@@ -102,11 +130,29 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-    // SOFT DELETE
+    const user = await this.findOne(id);
+    if (
+      user.role === 'ADMINISTRADOR' &&
+      (await this.prisma.user.count({
+        where: { role: 'ADMINISTRADOR', deletedAt: null },
+      })) === 1
+    ) {
+      throw new ConflictException(
+        'No se puede desactivar al único administrador activo.',
+      );
+    }
     return this.prisma.user.update({
       where: { id },
       data: { deletedAt: new Date() },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+      },
     });
   }
 

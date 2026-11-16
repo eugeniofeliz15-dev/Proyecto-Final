@@ -5,6 +5,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
 @ApiTags('Cart')
 @ApiBearerAuth()
@@ -16,7 +17,7 @@ export class CartController {
 
   @ApiOperation({ summary: 'Ver mi carrito' })
   @Get()
-  getCart(@Req() req: any) {
+  getCart(@Req() req: AuthenticatedRequest) {
     return this.cartService.getCart(req.user.id);
   }
 
@@ -34,13 +35,19 @@ export class CartController {
     }
   })
   @Post('add')
-  addToCart(@Body() addToCartDto: AddToCartDto, @Req() req: any) {
+  addToCart(
+    @Body() addToCartDto: AddToCartDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.cartService.addToCart(req.user.id, addToCartDto);
   }
 
   @ApiOperation({ summary: 'Eliminar producto del carrito' })
   @Delete('remove/:productId')
-  removeFromCart(@Param('productId') productId: string, @Req() req: any) {
+  removeFromCart(
+    @Param('productId') productId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.cartService.removeFromCart(req.user.id, parseInt(productId));
   }
 }

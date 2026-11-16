@@ -1,4 +1,9 @@
-import { IsArray, IsEnum, ValidateNested } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsEnum,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateSaleItemDto } from './create-sale-item.dto';
@@ -20,6 +25,7 @@ export class CreateSaleDto {
     { productId: 2, quantity: 1 }
   ]})
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateSaleItemDto)
   items: CreateSaleItemDto[];

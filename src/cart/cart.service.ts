@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { publicProductSelect } from '../products/dto/public-product.dto';
 
 @Injectable()
 export class CartService {
@@ -9,14 +10,18 @@ export class CartService {
   async getCart(customerId: number) {
     let cart = await this.prisma.cart.findUnique({
       where: { customerId },
-      include: { items: { include: { product: true } } },
+      include: {
+        items: { include: { product: { select: publicProductSelect } } },
+      },
     });
 
     // Si no tiene carrito, creamos uno vacío
     if (!cart) {
       cart = await this.prisma.cart.create({
         data: { customerId },
-        include: { items: { include: { product: true } } },
+        include: {
+          items: { include: { product: { select: publicProductSelect } } },
+        },
       });
     }
 
@@ -25,7 +30,9 @@ export class CartService {
 
   async addToCart(customerId: number, addToCartDto: AddToCartDto) {
     // Verificar que el producto existe y tiene stock
-    const product = await this.prisma.product.findUnique({ where: { id: addToCartDto.productId } });
+    const product = await this.prisma.product.findFirst({
+      where: { id: addToCartDto.productId, deletedAt: null },
+    });
     if (!product) throw new NotFoundException('Producto no encontrado');
     if (product.stock === 0) throw new BadRequestException('Producto agotado');
 
@@ -39,6 +46,14 @@ export class CartService {
     const existingItem = await this.prisma.cartItem.findFirst({
       where: { cartId: cart.id, productId: addToCartDto.productId },
     });
+
+    const requestedQuantity =
+      (existingItem?.quantity ?? 0) + addToCartDto.quantity;
+    if (requestedQuantity > product.stock) {
+      throw new BadRequestException(
+        `Stock insuficiente para "${product.name}". Disponible: ${product.stock}, Solicitado: ${requestedQuantity}`,
+      );
+    }
 
     if (existingItem) {
       // Actualizar cantidad si ya existe

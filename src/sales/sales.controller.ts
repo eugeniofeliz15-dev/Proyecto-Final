@@ -6,6 +6,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { PaginationDto } from '../common/pagination.dto';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
 @ApiTags('Sales')
 @ApiBearerAuth()
@@ -24,13 +25,15 @@ export class SalesController {
         value: { 
           items: [{ productId: 1, quantity: 1 }], 
           paymentMethod: 'EFECTIVO',
-          cashReceived: 60000 
         }
       }
     }
   })
   @Post()
-  create(@Body() createSaleDto: CreateSaleDto, @Req() req: any) {
+  create(
+    @Body() createSaleDto: CreateSaleDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.salesService.create(createSaleDto, req.user.id);
   }
 

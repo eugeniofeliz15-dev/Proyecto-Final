@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import type { AuthenticatedRequest } from './types/authenticated-request';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,7 +37,7 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  login(@Request() req: any) {
+  login(@Request() req: AuthenticatedRequest) {
     return this.authService.login(req.user);
   }
 }

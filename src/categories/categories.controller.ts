@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -8,7 +24,6 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('Categories')
-@ApiBearerAuth()
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
@@ -22,12 +37,13 @@ export class CategoriesController {
   @ApiOperation({ summary: 'Obtener categoría por ID' })
   @ApiParam({ name: 'id', type: Number })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoriesService.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMINISTRADOR')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear categoría (Solo Admin)' })
   @ApiBody({
     type: CreateCategoryDto,
@@ -37,9 +53,9 @@ export class CategoriesController {
         value: {
           name: 'Electrónica',
           description: 'Productos tecnológicos y gadgets',
-        }
-      }
-    }
+        },
+      },
+    },
   })
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -48,6 +64,7 @@ export class CategoriesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMINISTRADOR')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualizar categoría (Solo Admin)' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({
@@ -57,22 +74,27 @@ export class CategoriesController {
         summary: 'Ejemplo de actualización',
         value: {
           name: 'Electrónica y Tecnología',
-          description: 'Actualizado: Productos tecnológicos, gadgets y accesorios',
-        }
-      }
-    }
+          description:
+            'Actualizado: Productos tecnológicos, gadgets y accesorios',
+        },
+      },
+    },
   })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMINISTRADOR')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Eliminar categoría - Soft Delete (Solo Admin)' })
   @ApiParam({ name: 'id', type: Number })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.categoriesService.remove(id);
   }
 }

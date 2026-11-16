@@ -6,6 +6,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CashRegisterService } from './cash-register.service';
 import { OpenCashRegisterDto } from './dto/open-cash-register.dto';
 import { CloseCashRegisterDto } from './dto/close-cash-register.dto';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
 @ApiTags('Cash Register')
 @ApiBearerAuth()
@@ -14,19 +15,22 @@ import { CloseCashRegisterDto } from './dto/close-cash-register.dto';
 export class CashRegisterController {
   constructor(private readonly cashRegisterService: CashRegisterService) {}
 
-  @Roles('ADMINISTRADOR', 'CAJERO')
+  @Roles('ADMINISTRADOR')
   @ApiOperation({ summary: 'Abrir caja (Registrar monto inicial)' })
   @ApiBody({
     type: OpenCashRegisterDto,
     examples: {
       default: {
         summary: 'Apertura de caja',
-        value: { initialAmount: 5000, notes: 'Caja principal del turno mañana' }
+        value: { openingBalance: 5000 }
       }
     }
   })
   @Post('open')
-  open(@Body() openDto: OpenCashRegisterDto, @Req() req: any) {
+  open(
+    @Body() openDto: OpenCashRegisterDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.cashRegisterService.open(req.user.id, openDto);
   }
 
@@ -37,16 +41,19 @@ export class CashRegisterController {
     examples: {
       default: {
         summary: 'Cierre de caja',
-        value: { finalAmount: 60500, notes: 'Cierre sin novedades, efectivo cuadrado' }
+        value: { closingBalance: 60500 }
       }
     }
   })
   @Post('close')
-  close(@Body() closeDto: CloseCashRegisterDto, @Req() req: any) {
+  close(
+    @Body() closeDto: CloseCashRegisterDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.cashRegisterService.close(req.user.id, closeDto);
   }
 
-  @Roles('ADMINISTRADOR', 'CAJERO')
+  @Roles('ADMINISTRADOR')
   @ApiOperation({ summary: 'Ver estado actual de la caja' })
   @Get('status')
   getStatus() {

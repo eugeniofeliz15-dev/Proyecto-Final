@@ -39,7 +39,9 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
 
     prisma = app.get(PrismaService);
@@ -47,21 +49,41 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
 
   afterAll(async () => {
     // 🧹 LIMPIEZA AUTOMÁTICA (Orden inverso)
-    if (saleId) await prisma.sale.delete({ where: { id: saleId } }).catch(() => {});
-    if (orderId) await prisma.order.delete({ where: { id: orderId } }).catch(() => {});
-    if (cashRegisterId) await prisma.cashRegister.delete({ where: { id: cashRegisterId } }).catch(() => {});
-    if (productId) await prisma.product.delete({ where: { id: productId } }).catch(() => {});
-    if (categoryId) await prisma.category.delete({ where: { id: categoryId } }).catch(() => {});
-    if (addressId) await prisma.address.delete({ where: { id: addressId } }).catch(() => {}); // 👈 Limpieza de dirección
-    await prisma.user.deleteMany({ where: { email: { startsWith: 'test-admin-' } } }).catch(() => {});
-    await prisma.user.deleteMany({ where: { email: { startsWith: 'test-client-' } } }).catch(() => {});
-    
+    if (saleId)
+      await prisma.sale.delete({ where: { id: saleId } }).catch(() => {});
+    if (orderId)
+      await prisma.order.delete({ where: { id: orderId } }).catch(() => {});
+    if (cashRegisterId)
+      await prisma.cashRegister
+        .delete({ where: { id: cashRegisterId } })
+        .catch(() => {});
+    if (productId)
+      await prisma.product.delete({ where: { id: productId } }).catch(() => {});
+    if (categoryId)
+      await prisma.category
+        .delete({ where: { id: categoryId } })
+        .catch(() => {});
+    if (addressId)
+      await prisma.address.delete({ where: { id: addressId } }).catch(() => {}); // 👈 Limpieza de dirección
+    await prisma.user
+      .deleteMany({ where: { email: { startsWith: 'test-admin-' } } })
+      .catch(() => {});
+    await prisma.user
+      .deleteMany({ where: { email: { startsWith: 'test-client-' } } })
+      .catch(() => {});
+
     await app.close();
   });
 
   it('1. Debe registrar un usuario ADMIN y devolver un token', async () => {
-    const response = await request(app.getHttpServer()).post('/api/auth/register').send(testAdmin).expect(201);
-    await prisma.user.update({ where: { email: testAdmin.email }, data: { role: 'ADMINISTRADOR' } });
+    await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send(testAdmin)
+      .expect(201);
+    await prisma.user.update({
+      where: { email: testAdmin.email },
+      data: { role: 'ADMINISTRADOR' },
+    });
   });
 
   it('2. Debe iniciar sesión como ADMIN correctamente', async () => {
@@ -73,7 +95,10 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
   });
 
   it('3. Debe registrar un usuario CLIENTE y devolver un token', async () => {
-    await request(app.getHttpServer()).post('/api/auth/register').send(testClient).expect(201);
+    await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send(testClient)
+      .expect(201);
   });
 
   it('4. Debe iniciar sesión como CLIENTE correctamente', async () => {
@@ -97,7 +122,14 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
     const response = await request(app.getHttpServer())
       .post('/api/products')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ name: 'Producto E2E', description: 'Test', costPrice: 50, salePrice: 100, stock: 20, categoryId })
+      .send({
+        name: 'Producto E2E',
+        description: 'Test',
+        costPrice: 50,
+        salePrice: 100,
+        stock: 20,
+        categoryId,
+      })
       .expect(201);
     productId = response.body.id;
   });
@@ -124,36 +156,38 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
       .get('/api/cart')
       .set('Authorization', `Bearer ${clientToken}`)
       .expect(200);
-    
+
     const cartData = response.body.items || response.body.cart || response.body;
     expect(cartData).toBeDefined();
   });
 
   // 👇 PASO NUEVO: Crear una dirección válida para el checkout
   it('9.5. Debe crear una dirección de prueba para el cliente', async () => {
-    const clientUser = await prisma.user.findUnique({ where: { email: testClient.email } });
-    
+    const clientUser = await prisma.user.findUnique({
+      where: { email: testClient.email },
+    });
+
     const newAddress = await prisma.address.create({
       data: {
         street: 'Calle de Prueba 123',
         city: 'Santo Domingo',
         state: 'Distrito Nacional',
         zipCode: '10000', // 👈 ¡ESTE ERA EL ÚLTIMO CAMPO FALTANTE!
-        userId: clientUser!.id, 
-      }
+        userId: clientUser!.id,
+      },
     });
     addressId = newAddress.id;
   });
 
- it('10. Debe procesar el Checkout / Crear Orden (CLIENTE)', async () => {
+  it('10. Debe procesar el Checkout / Crear Orden (CLIENTE)', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/orders/checkout')
       .set('Authorization', `Bearer ${clientToken}`)
-      .send({ 
-        paymentMethod: 'EFECTIVO', 
-        addressId: addressId
+      .send({
+        paymentMethod: 'EFECTIVO',
+        addressId: addressId,
       });
-    
+
     if (response.status !== 201 && response.status !== 200) {
       console.log('❌ ERROR EN CHECKOUT:', response.body);
     }
@@ -168,7 +202,7 @@ describe('Flujo Completo E2E - POS & E-commerce', () => {
       .send({
         items: [{ productId: productId, quantity: 1, salePrice: 100 }],
         total: 100,
-        paymentMethod: 'EFECTIVO'
+        paymentMethod: 'EFECTIVO',
       })
       .expect(201);
     saleId = response.body.id;

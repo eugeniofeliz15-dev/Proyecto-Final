@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Req,
+  Query,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -6,6 +17,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
 @ApiTags('Orders')
 @ApiBearerAuth()
@@ -14,71 +27,76 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-   @Roles('CLIENTE')
-  @ApiOperation({ summary: 'Checkout exclusivo con MockPay (Genera URL de pago)' })
+  @Roles('CLIENTE')
+  @ApiOperation({
+    summary: 'Checkout exclusivo con MockPay (Genera URL de pago)',
+  })
   @ApiBody({
     type: CreateOrderDto,
     examples: {
       default: {
         summary: 'Checkout con MockPay',
-        value: { addressId: 1, paymentMethod: 'MOCKPAY', notes: 'Entregar en recepción' }
-      }
-    }
+        value: {
+          addressId: 1,
+          paymentMethod: 'MOCKPAY',
+          notes: 'Entregar en recepción',
+        },
+      },
+    },
   })
   @Post('checkout-mockpay')
-  async checkoutMockPay(@Body() createOrderDto: CreateOrderDto, @Req() req: any) {
+  async checkoutMockPay(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.ordersService.checkoutMockPay(req.user.id, createOrderDto);
+  }
+
+  @Roles('CLIENTE')
+  @ApiOperation({
+    summary: 'Reintentar el enlace de pago de un pedido pendiente',
+  })
+  @Post(':id/payment-link')
+  retryPayment(
+    @Param('id', ParseIntPipe) orderId: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ordersService.retryPayment(req.user.id, orderId);
   }
 
   @Roles('CLIENTE')
   @ApiOperation({ summary: 'Ver mis pedidos' })
   @Get('my-orders')
-  findMyOrders(@Req() req: any) {
-    return this.ordersService.findMyOrders(req.user.id);
+  findMyOrders(
+    @Req() req: AuthenticatedRequest,
+    @Query() queryDto: OrderQueryDto,
+  ) {
+    return this.ordersService.findMyOrders(req.user.id, queryDto);
   }
 
-  @Roles('ADMINISTRADOR')
+  @Roles('ADMINISTRADOR', 'CAJERO')
   @ApiOperation({ summary: 'Ver todos los pedidos (Cola de logística)' })
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query() queryDto: OrderQueryDto) {
+    return this.ordersService.findAll(queryDto);
   }
 
-  @Roles('ADMINISTRADOR')
+  @Roles('ADMINISTRADOR', 'CAJERO')
   @ApiOperation({ summary: 'Actualizar estado del pedido (Logística)' })
   @ApiBody({
     type: UpdateOrderStatusDto,
     examples: {
       default: {
         summary: 'Marcar como enviado',
-        value: { status: 'ENVIADO' }
-      }
-    }
+        value: { status: 'EN_CAMINO' },
+      },
+    },
   })
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
-    return this.ordersService.updateStatus(parseInt(id), updateOrderStatusDto);
-  }
-
-  // --- ENDPOINT PÚBLICO PARA WEBHOOK ---
-  @Post('webhooks/mockpay')
-  @ApiOperation({ summary: 'Webhook público para recibir confirmación de pago de MockPay' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        event: { type: 'string', example: 'payment.succeeded' },
-        status: { type: 'string', example: 'SUCCEEDED' },
-        metadata: {
-          type: 'object',
-          properties: {
-            order_id: { type: 'string', example: 'ORD-5' }
-          }
-        }
-      }
-    }
-  })
-  async handleMockPayWebhook(@Body() webhookData: any) {
-    return this.ordersService.handlePaymentWebhook(webhookData);
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+  ) {
+    return this.ordersService.updateStatus(id, updateOrderStatusDto);
   }
 }

@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum PaymentMethodOrder {
@@ -10,7 +10,8 @@ export enum PaymentMethodOrder {
 
 export class CreateOrderDto {
   @ApiProperty({ example: 1 })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   addressId: number;
 
   @ApiPropertyOptional({ example: 'Casa azul, timbre no funciona' })

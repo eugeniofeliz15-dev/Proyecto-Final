@@ -5228,6 +5228,7 @@ export namespace Prisma {
     salePrice: number | null
     stock: number | null
     categoryId: number | null
+    imageUrl: string | null
     deletedAt: Date | null
   }
 
@@ -5239,6 +5240,7 @@ export namespace Prisma {
     salePrice: number | null
     stock: number | null
     categoryId: number | null
+    imageUrl: string | null
     deletedAt: Date | null
   }
 
@@ -5250,6 +5252,7 @@ export namespace Prisma {
     salePrice: number
     stock: number
     categoryId: number
+    imageUrl: number
     deletedAt: number
     _all: number
   }
@@ -5279,6 +5282,7 @@ export namespace Prisma {
     salePrice?: true
     stock?: true
     categoryId?: true
+    imageUrl?: true
     deletedAt?: true
   }
 
@@ -5290,6 +5294,7 @@ export namespace Prisma {
     salePrice?: true
     stock?: true
     categoryId?: true
+    imageUrl?: true
     deletedAt?: true
   }
 
@@ -5301,6 +5306,7 @@ export namespace Prisma {
     salePrice?: true
     stock?: true
     categoryId?: true
+    imageUrl?: true
     deletedAt?: true
     _all?: true
   }
@@ -5399,6 +5405,7 @@ export namespace Prisma {
     salePrice: number
     stock: number
     categoryId: number
+    imageUrl: string | null
     deletedAt: Date | null
     _count: ProductCountAggregateOutputType | null
     _avg: ProductAvgAggregateOutputType | null
@@ -5429,6 +5436,7 @@ export namespace Prisma {
     salePrice?: boolean
     stock?: boolean
     categoryId?: boolean
+    imageUrl?: boolean
     deletedAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     saleItems?: boolean | Product$saleItemsArgs<ExtArgs>
@@ -5445,6 +5453,7 @@ export namespace Prisma {
     salePrice?: boolean
     stock?: boolean
     categoryId?: boolean
+    imageUrl?: boolean
     deletedAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
@@ -5457,6 +5466,7 @@ export namespace Prisma {
     salePrice?: boolean
     stock?: boolean
     categoryId?: boolean
+    imageUrl?: boolean
     deletedAt?: boolean
   }
 
@@ -5487,6 +5497,7 @@ export namespace Prisma {
       salePrice: number
       stock: number
       categoryId: number
+      imageUrl: string | null
       deletedAt: Date | null
     }, ExtArgs["result"]["product"]>
     composites: {}
@@ -5892,6 +5903,7 @@ export namespace Prisma {
     readonly salePrice: FieldRef<"Product", 'Float'>
     readonly stock: FieldRef<"Product", 'Int'>
     readonly categoryId: FieldRef<"Product", 'Int'>
+    readonly imageUrl: FieldRef<"Product", 'String'>
     readonly deletedAt: FieldRef<"Product", 'DateTime'>
   }
     
@@ -13435,6 +13447,7 @@ export namespace Prisma {
     salePrice: 'salePrice',
     stock: 'stock',
     categoryId: 'categoryId',
+    imageUrl: 'imageUrl',
     deletedAt: 'deletedAt'
   };
 
@@ -13912,6 +13925,7 @@ export namespace Prisma {
     salePrice?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
     categoryId?: IntFilter<"Product"> | number
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     category?: XOR<CategoryRelationFilter, CategoryWhereInput>
     saleItems?: SaleItemListRelationFilter
@@ -13927,6 +13941,7 @@ export namespace Prisma {
     salePrice?: SortOrder
     stock?: SortOrder
     categoryId?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     deletedAt?: SortOrderInput | SortOrder
     category?: CategoryOrderByWithRelationInput
     saleItems?: SaleItemOrderByRelationAggregateInput
@@ -13945,6 +13960,7 @@ export namespace Prisma {
     salePrice?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
     categoryId?: IntFilter<"Product"> | number
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     category?: XOR<CategoryRelationFilter, CategoryWhereInput>
     saleItems?: SaleItemListRelationFilter
@@ -13960,6 +13976,7 @@ export namespace Prisma {
     salePrice?: SortOrder
     stock?: SortOrder
     categoryId?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     deletedAt?: SortOrderInput | SortOrder
     _count?: ProductCountOrderByAggregateInput
     _avg?: ProductAvgOrderByAggregateInput
@@ -13979,6 +13996,7 @@ export namespace Prisma {
     salePrice?: FloatWithAggregatesFilter<"Product"> | number
     stock?: IntWithAggregatesFilter<"Product"> | number
     categoryId?: IntWithAggregatesFilter<"Product"> | number
+    imageUrl?: StringNullableWithAggregatesFilter<"Product"> | string | null
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
   }
 
@@ -14690,6 +14708,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     category: CategoryCreateNestedOneWithoutProductsInput
     saleItems?: SaleItemCreateNestedManyWithoutProductInput
@@ -14705,6 +14724,7 @@ export namespace Prisma {
     salePrice: number
     stock?: number
     categoryId: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     saleItems?: SaleItemUncheckedCreateNestedManyWithoutProductInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutProductInput
@@ -14717,6 +14737,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
     saleItems?: SaleItemUpdateManyWithoutProductNestedInput
@@ -14732,6 +14753,7 @@ export namespace Prisma {
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
     categoryId?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     saleItems?: SaleItemUncheckedUpdateManyWithoutProductNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutProductNestedInput
@@ -14746,6 +14768,7 @@ export namespace Prisma {
     salePrice: number
     stock?: number
     categoryId: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
   }
 
@@ -14755,6 +14778,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -14766,6 +14790,7 @@ export namespace Prisma {
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
     categoryId?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -15607,6 +15632,7 @@ export namespace Prisma {
     salePrice?: SortOrder
     stock?: SortOrder
     categoryId?: SortOrder
+    imageUrl?: SortOrder
     deletedAt?: SortOrder
   }
 
@@ -15626,6 +15652,7 @@ export namespace Prisma {
     salePrice?: SortOrder
     stock?: SortOrder
     categoryId?: SortOrder
+    imageUrl?: SortOrder
     deletedAt?: SortOrder
   }
 
@@ -15637,6 +15664,7 @@ export namespace Prisma {
     salePrice?: SortOrder
     stock?: SortOrder
     categoryId?: SortOrder
+    imageUrl?: SortOrder
     deletedAt?: SortOrder
   }
 
@@ -17711,6 +17739,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     saleItems?: SaleItemCreateNestedManyWithoutProductInput
     orderItems?: OrderItemCreateNestedManyWithoutProductInput
@@ -17724,6 +17753,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     saleItems?: SaleItemUncheckedCreateNestedManyWithoutProductInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutProductInput
@@ -17767,6 +17797,7 @@ export namespace Prisma {
     salePrice?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
     categoryId?: IntFilter<"Product"> | number
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
   }
 
@@ -18118,6 +18149,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     category: CategoryCreateNestedOneWithoutProductsInput
     orderItems?: OrderItemCreateNestedManyWithoutProductInput
@@ -18132,6 +18164,7 @@ export namespace Prisma {
     salePrice: number
     stock?: number
     categoryId: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutProductInput
     cartItems?: CartItemUncheckedCreateNestedManyWithoutProductInput
@@ -18185,6 +18218,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
     orderItems?: OrderItemUpdateManyWithoutProductNestedInput
@@ -18199,6 +18233,7 @@ export namespace Prisma {
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
     categoryId?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderItems?: OrderItemUncheckedUpdateManyWithoutProductNestedInput
     cartItems?: CartItemUncheckedUpdateManyWithoutProductNestedInput
@@ -18421,6 +18456,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     category: CategoryCreateNestedOneWithoutProductsInput
     saleItems?: SaleItemCreateNestedManyWithoutProductInput
@@ -18435,6 +18471,7 @@ export namespace Prisma {
     salePrice: number
     stock?: number
     categoryId: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     saleItems?: SaleItemUncheckedCreateNestedManyWithoutProductInput
     cartItems?: CartItemUncheckedCreateNestedManyWithoutProductInput
@@ -18494,6 +18531,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
     saleItems?: SaleItemUpdateManyWithoutProductNestedInput
@@ -18508,6 +18546,7 @@ export namespace Prisma {
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
     categoryId?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     saleItems?: SaleItemUncheckedUpdateManyWithoutProductNestedInput
     cartItems?: CartItemUncheckedUpdateManyWithoutProductNestedInput
@@ -18660,6 +18699,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     category: CategoryCreateNestedOneWithoutProductsInput
     saleItems?: SaleItemCreateNestedManyWithoutProductInput
@@ -18674,6 +18714,7 @@ export namespace Prisma {
     salePrice: number
     stock?: number
     categoryId: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
     saleItems?: SaleItemUncheckedCreateNestedManyWithoutProductInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutProductInput
@@ -18725,6 +18766,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
     saleItems?: SaleItemUpdateManyWithoutProductNestedInput
@@ -18739,6 +18781,7 @@ export namespace Prisma {
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
     categoryId?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     saleItems?: SaleItemUncheckedUpdateManyWithoutProductNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutProductNestedInput
@@ -19169,6 +19212,7 @@ export namespace Prisma {
     costPrice: number
     salePrice: number
     stock?: number
+    imageUrl?: string | null
     deletedAt?: Date | string | null
   }
 
@@ -19178,6 +19222,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     saleItems?: SaleItemUpdateManyWithoutProductNestedInput
     orderItems?: OrderItemUpdateManyWithoutProductNestedInput
@@ -19191,6 +19236,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     saleItems?: SaleItemUncheckedUpdateManyWithoutProductNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutProductNestedInput
@@ -19204,6 +19250,7 @@ export namespace Prisma {
     costPrice?: FloatFieldUpdateOperationsInput | number
     salePrice?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
